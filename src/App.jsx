@@ -956,7 +956,7 @@
 
 
 
-//gem
+//case3
 import React, { useState, useCallback, useMemo } from "react";
 import ReactFlow, {
   addEdge,
@@ -979,7 +979,7 @@ const NODE_TYPES_CONFIG = {
   end: { color: "#ef4444", label: "End Session" },
 };
 
-const BFSI_LOAN_TEMPLATE = [
+const example = [
   { 
     id: "node_1", 
     type: "custom", 
@@ -987,7 +987,7 @@ const BFSI_LOAN_TEMPLATE = [
     data: { 
       label: "Welcome", 
       nodeType: "message", 
-      prompt: "Hello, thanks for calling Global Bank. Are you interested in a loan?", 
+      prompt: "Loan?", 
       persona: { friendliness: 0.8, assertiveness: 0.2 } 
     } 
   },
@@ -998,48 +998,148 @@ const BFSI_LOAN_TEMPLATE = [
     data: { 
       label: "Check Income", 
       nodeType: "question", 
-      prompt: "To help you better, what is your approximate annual income?", 
+      prompt: "What is your annual income?", 
       variable: "annual_income" 
     } 
   },
 ];
 
 // --- 2. CUSTOM VOICE NODE COMPONENT ---
+// const VoiceNode = ({ data, selected }) => {
+//   const themeColor = NODE_TYPES_CONFIG[data.nodeType]?.color || "#333";
+  
+//   return (
+//     <div style={{
+//       padding: "12px",
+//       borderRadius: "8px",
+//       background: "#fff",
+//       border: selected ? `2px solid ${themeColor}` : "1px solid #d1d5db",
+//       width: 180,
+//       boxShadow: selected ? "0 0 10px rgba(0,0,0,0.1)" : "0 2px 4px rgba(0,0,0,0.05)",
+//       fontFamily: "Inter, sans-serif"
+//     }}>
+//       <Handle type="target" position={Position.Top} style={{ background: "#9ca3af" }} />
+      
+//       <div style={{ display: "flex", alignItems: "center", marginBottom: "6px" }}>
+//         <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: themeColor, marginRight: "6px" }} />
+//         <span style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>
+//           {data.nodeType}
+//         </span>
+//       </div>
+      
+//       <div style={{ fontWeight: "600", fontSize: "13px", color: "#111827" }}>{data.label}</div>
+//       <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+//         {data.prompt || "No content set..."}
+//       </div>
+
+//       <Handle type="source" position={Position.Bottom} style={{ background: "#9ca3af" }} />
+//     </div>
+//   );
+// };
+
 const VoiceNode = ({ data, selected }) => {
   const themeColor = NODE_TYPES_CONFIG[data.nodeType]?.color || "#333";
-  
+
   return (
-    <div style={{
-      padding: "12px",
-      borderRadius: "8px",
-      background: "#fff",
-      border: selected ? `2px solid ${themeColor}` : "1px solid #d1d5db",
-      width: 180,
-      boxShadow: selected ? "0 0 10px rgba(0,0,0,0.1)" : "0 2px 4px rgba(0,0,0,0.05)",
-      fontFamily: "Inter, sans-serif"
-    }}>
-      <Handle type="target" position={Position.Top} style={{ background: "#9ca3af" }} />
-      
-      <div style={{ display: "flex", alignItems: "center", marginBottom: "6px" }}>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: themeColor, marginRight: "6px" }} />
-        <span style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>
+    <div
+      style={{
+        padding: "12px",
+        borderRadius: "8px",
+        background: "#fff",
+        border: selected
+          ? `2px solid ${themeColor}`
+          : "1px solid #d1d5db",
+        width: 180,
+        boxShadow: selected
+          ? "0 0 10px rgba(0,0,0,0.1)"
+          : "0 2px 4px rgba(0,0,0,0.05)",
+        fontFamily: "Inter, sans-serif",
+        position: "relative", // important for handles
+      }}
+    >
+      {/* 🔵 TOP → incoming connection */}
+      <Handle
+        id="top"
+        type="target"
+        position={Position.Top}
+        style={{ background: "#9ca3af", zIndex: 10 }}
+      />
+
+      {/* 🟣 RIGHT → outgoing connection */}
+      <Handle
+        id="right"
+        type="source"
+        position={Position.Right}
+        style={{ background: "#9ca3af", zIndex: 10 }}
+      />
+
+      {/* 🧠 CONTENT */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "6px",
+        }}
+      >
+        <div
+          style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: themeColor,
+            marginRight: "6px",
+          }}
+        />
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: "700",
+            color: "#6b7280",
+            textTransform: "uppercase",
+          }}
+        >
           {data.nodeType}
         </span>
       </div>
-      
-      <div style={{ fontWeight: "600", fontSize: "13px", color: "#111827" }}>{data.label}</div>
-      <div style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+
+      <div
+        style={{
+          fontWeight: "600",
+          fontSize: "13px",
+          color: "#111827",
+        }}
+      >
+        {data.label}
+      </div>
+
+      <div
+        style={{
+          fontSize: "10px",
+          color: "#6b7280",
+          marginTop: "4px",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
         {data.prompt || "No content set..."}
       </div>
 
-      <Handle type="source" position={Position.Bottom} style={{ background: "#9ca3af" }} />
+      {/* 🔴 BOTTOM → outgoing connection */}
+      <Handle
+        id="bottom"
+        type="source"
+        position={Position.Bottom}
+        style={{ background: "#9ca3af", zIndex: 10 }}
+      />
     </div>
   );
 };
 
+
 // --- 3. MAIN STUDIO APPLICATION ---
 export default function VoiceFlowStudio() {
-  const [nodes, setNodes] = useState(BFSI_LOAN_TEMPLATE);
+  const [nodes, setNodes] = useState(example);
   const [edges, setEdges] = useState([]);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
@@ -1090,7 +1190,7 @@ export default function VoiceFlowStudio() {
     <div style={{ 
       display: "flex", 
       width: "98vw", 
-      height: "100vh", 
+      height: "97vh", 
       overflow: "hidden", 
       background: "#f3f4f6",
       fontFamily: "Inter, sans-serif"
@@ -1108,7 +1208,7 @@ export default function VoiceFlowStudio() {
       }}>
         <h2 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "20px" }}>Voice Studio</h2>
         
-        <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "10px", fontWeight: "600" }}>DRAG & DROP NODES</p>
+        <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "10px", fontWeight: "600" }}>NODES</p>
         <div style={{ display: "grid", gap: "10px" }}>
           {Object.keys(NODE_TYPES_CONFIG).map((type) => (
             <button 
@@ -1154,6 +1254,7 @@ export default function VoiceFlowStudio() {
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          defaultEdgeOptions={{ type: "smoothstep" }}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
@@ -1161,8 +1262,9 @@ export default function VoiceFlowStudio() {
           onPaneClick={() => setSelectedNodeId(null)}
           nodeTypes={nodeTypes}
           fitView
+          fitViewOptions={{ padding: 3 }}
         >
-          <Background variant="dots" gap={12} size={1} />
+          <Background variant="lines" gap={12} size={1} />
           <Controls />
           <MiniMap />
         </ReactFlow>
